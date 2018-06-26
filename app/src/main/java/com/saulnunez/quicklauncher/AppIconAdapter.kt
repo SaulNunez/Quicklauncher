@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.LauncherApps
 import android.content.pm.PackageManager
-import android.content.pm.ResolveInfo
 import android.content.pm.ShortcutInfo
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -23,7 +22,7 @@ import android.view.ViewGroup.LayoutParams
 import kotlinx.android.synthetic.main.app_item_layout.view.*
 import kotlinx.android.synthetic.main.shortcut_popup.view.*
 
-class AppIconAdapter(var appList: MutableList<ResolveInfo>,
+class AppIconAdapter(var appList: MutableList<Home.AppInfo>,
                      val packageManager: PackageManager,
                      val context: Context) : RecyclerView.Adapter<AppIconAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -34,9 +33,9 @@ class AppIconAdapter(var appList: MutableList<ResolveInfo>,
     override fun getItemCount(): Int = appList.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.setPackageInfo(appList[position].loadLabel(packageManager).toString(),
-                appList[position].activityInfo.packageName.toString(),
-                appList[position].loadIcon(packageManager))
+        holder.setPackageInfo(appList[position].appLabel,
+                appList[position].dataOrigin.activityInfo.packageName.toString(),
+                appList[position].icon)
     }
 
     class ViewHolder(itemView: View, val packageManager: PackageManager,
@@ -48,11 +47,21 @@ class AppIconAdapter(var appList: MutableList<ResolveInfo>,
                     null, false), LayoutParams.WRAP_CONTENT,
                     LayoutParams.WRAP_CONTENT)
 
-            popupWindow.contentView.buttonDetails.setOnClickListener {
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            popupWindow.contentView.buttonDelete.setOnClickListener {
+                val uninstallIntent = Intent(Intent.ACTION_DELETE,
                         Uri.fromParts("package", packageName, null))
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
+                context.startActivity(uninstallIntent)
+
+                popupWindow.dismiss()
+            }
+
+            popupWindow.contentView.buttonDetails.setOnClickListener {
+                val appDetailsPageIntent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.fromParts("package", packageName, null))
+                appDetailsPageIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(appDetailsPageIntent)
+
+                popupWindow.dismiss()
             }
 
             //Show shortcuts list
@@ -76,15 +85,16 @@ class AppIconAdapter(var appList: MutableList<ResolveInfo>,
                     popupWindow.contentView.recyclerView.adapter = shortcutAdapter
 
                     popupWindow.isFocusable = true
-
-                    popupWindow.showAsDropDown(v, -v!!.width, -v!!.height, Gravity.START)
+                    val location = IntArray(2)
+                    v!!.getLocationOnScreen(location)
+                    popupWindow.showAtLocation(v, Gravity.NO_GRAVITY, location[0], location[1])
                 } catch (e: Exception) {
                     //Logic to run if we aren't the primary launcher, thus we don't have permission
                     //to look for shortcuts
                 }
             }
 
-            return false
+            return true
         }
 
         private var packageName: String? = null

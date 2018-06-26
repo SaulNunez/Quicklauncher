@@ -3,6 +3,7 @@ package com.saulnunez.quicklauncher
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 
 class AppInstallReceiver : BroadcastReceiver() {
     companion object {
@@ -15,6 +16,7 @@ class AppInstallReceiver : BroadcastReceiver() {
 
             val installedOrUpdated = intent.data.encodedSchemeSpecificPart
 
+            Log.d("QuickLauncher", installedOrUpdated)
             if (classesToAlert.isNotEmpty()) {
                 for (classToAlert in classesToAlert) {
                     when (intent.action) {

@@ -1,32 +1,28 @@
 package com.saulnunez.quicklauncher
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.RecyclerView
 import android.content.pm.ResolveInfo
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.support.v7.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.activity_home.*
+
 import java.util.*
 
 
 class Home : AppCompatActivity(), AppInstallReceiver.IOnAppChanged {
-    //var appList : MutableList<ResolveInfo> = mutableListOf<ResolveInfo>()
-    lateinit var appAdapter: AppIconAdapter
 
     override fun AppUninstalled(packageChanged: String) {
-        // I think the last one is less efficient, so this one is used on newer platforms
-        val uninstalledIndex = appAdapter.appList.indexOfFirst { it.activityInfo.packageName == packageChanged }
-        appAdapter.appList.removeAt(uninstalledIndex)
-        appAdapter.notifyItemRemoved(uninstalledIndex)
+
     }
 
     override fun AppInstalled(packageChanged: String) {
-        appAdapter.appList = getApps()
-        val installedIndex = appAdapter.appList.indexOfFirst { it.activityInfo.packageName == packageChanged }
-        appAdapter.notifyItemInserted(installedIndex)
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,11 +35,10 @@ class Home : AppCompatActivity(), AppInstallReceiver.IOnAppChanged {
                 GridLayoutManager(applicationContext, 4)
         appGrid.layoutManager = layoutMan
         appGrid.itemAnimator = DefaultItemAnimator()
-        appAdapter = AppIconAdapter(getApps(), packageManager, this)
-        appGrid.adapter = appAdapter
+        appGrid.adapter = AppIconAdapter(getApps(), packageManager, this)
     }
 
-    private fun getApps(): MutableList<ResolveInfo> {
+    private fun getApps(): MutableList<AppInfo> {
         //Fill info about appList
         val intentForGettingLaunchableApps = Intent(Intent.ACTION_MAIN, null)
         intentForGettingLaunchableApps.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -61,13 +56,27 @@ class Home : AppCompatActivity(), AppInstallReceiver.IOnAppChanged {
             appList.remove(appList.find { it.activityInfo.packageName == packageName })
         }
 
-        return appList
-    }
+        val appInfo: MutableList<AppInfo> = mutableListOf()
+        for (app in appList) {
+            appInfo.add(AppInfo(app, packageManager))
+        }
 
+        return appInfo
+    }
 
     override fun onDestroy() {
         super.onDestroy()
 
         AppInstallReceiver.classesToAlert.remove(this)
     }
+
+    data class AppInfo(val dataOrigin: ResolveInfo, val packageManager: PackageManager) {
+        val appLabel = dataOrigin.loadLabel(packageManager).toString()
+        var icon: Drawable = dataOrigin.loadIcon(packageManager)
+
+        fun UpdateIcon(withIconPack: IconPack?) {}
+
+    }
+
+
 }
