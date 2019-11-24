@@ -1,41 +1,46 @@
 package com.saulnunez.quicklauncher
 
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.RecyclerView
 import android.content.pm.ResolveInfo
-import android.graphics.drawable.Drawable
 import android.os.Build
 import android.support.v7.widget.GridLayoutManager
+import android.util.Log
 import kotlinx.android.synthetic.main.activity_home.*
 
 import java.util.*
 
 
 class Home : AppCompatActivity(), AppInstallReceiver.IOnAppChanged {
+    var adapter = AppIconAdapter(getApps(), packageManager, this)
 
-    override fun AppUninstalled(packageChanged: String) {
-
+    override fun appUninstalled(packageChanged: String) {
+        val index = adapter.appList.indexOfFirst { it.dataOrigin.activityInfo.packageName == packageChanged }
+        Log.d("QuickLauncher", "Index " + index + "deleted as app " + packageChanged + " was uninstalled")
+        adapter.appList.removeAt(index)
+        adapter.notifyItemRemoved(index)
     }
 
-    override fun AppInstalled(packageChanged: String) {
-
+    override fun appInstalled(packageChanged: String) {
+        adapter.appList = getApps()
+        appGrid.adapter?.notifyDataSetChanged()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
+        AppInstallReceiver.registerReceiver(withContext = this)
         AppInstallReceiver.classesToAlert.add(this)
 
         val layoutMan: RecyclerView.LayoutManager =
                 GridLayoutManager(applicationContext, 4)
         appGrid.layoutManager = layoutMan
         appGrid.itemAnimator = DefaultItemAnimator()
-        appGrid.adapter = AppIconAdapter(getApps(), packageManager, this)
+        appGrid.adapter = adapter
     }
 
     private fun getApps(): MutableList<AppInfo> {
@@ -68,14 +73,6 @@ class Home : AppCompatActivity(), AppInstallReceiver.IOnAppChanged {
         super.onDestroy()
 
         AppInstallReceiver.classesToAlert.remove(this)
-    }
-
-    data class AppInfo(val dataOrigin: ResolveInfo, val packageManager: PackageManager) {
-        val appLabel = dataOrigin.loadLabel(packageManager).toString()
-        var icon: Drawable = dataOrigin.loadIcon(packageManager)
-
-        fun UpdateIcon(withIconPack: IconPack?) {}
-
     }
 
 

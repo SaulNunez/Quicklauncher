@@ -1,13 +1,18 @@
 package com.saulnunez.quicklauncher
 
 import android.content.Context
+import android.content.pm.PackageManager
+import android.content.res.Resources
+import android.content.res.XmlResourceParser
 import android.graphics.drawable.Drawable
 import org.w3c.dom.Document
+import org.w3c.dom.Element
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 
-class IconPack(packageName: String, context: Context) {
-    private var appFilter: Document? = null
+class IconPack(packageName: String, context: Context, packageManager: PackageManager) {
+    private var appFilter: XmlResourceParser
+    private val res: Resources
 
     private var iconBack: MutableList<Drawable> = mutableListOf()
     private var iconMask: Drawable? = null
@@ -16,13 +21,16 @@ class IconPack(packageName: String, context: Context) {
     init {
         val iconPackContext = context.createPackageContext(packageName,
                 Context.CONTEXT_IGNORE_SECURITY)
-        val iconPackDir = iconPackContext.packageResourcePath + File.pathSeparator +
-                "xml" + File.pathSeparator + "appfilter.xml"
-        val appFilterFile = File(iconPackDir)
-        appFilter = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(appFilterFile)
-        appFilter!!.documentElement.normalize()
+        res = iconPackContext.resources
+        val appFilterId = res.getIdentifier("appfilter", "xml", packageName)
+        appFilter = res.getXml(appFilterId)
 
-        //appFilter!!.getElementsByTagName("iconmask").item(0).attributes.getNamedItem("img1").
+        //There's between 1 and 5 drawables that can be used as iconBack
+        //As of explained here : https://forum.xda-developers.com/showthread.php?t=1649891
+        for (i in (1..5)) {
+            val iconBackDrawableId = res.getIdentifier("", "drawable", packageName)
+            //iconBack.add(res.getDrawableForDensity())
+        }
     }
 
     fun getIconForActivity(activityName: String): Drawable? {

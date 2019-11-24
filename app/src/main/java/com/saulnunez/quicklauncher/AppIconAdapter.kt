@@ -22,7 +22,7 @@ import android.view.ViewGroup.LayoutParams
 import kotlinx.android.synthetic.main.app_item_layout.view.*
 import kotlinx.android.synthetic.main.shortcut_popup.view.*
 
-class AppIconAdapter(var appList: MutableList<Home.AppInfo>,
+class AppIconAdapter(var appList: MutableList<AppInfo>,
                      val packageManager: PackageManager,
                      val context: Context) : RecyclerView.Adapter<AppIconAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
