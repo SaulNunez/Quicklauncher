@@ -1,13 +1,15 @@
 package com.saulnunez.quicklauncher
 
+import android.content.Context
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
+import android.content.IntentFilter
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v7.widget.DefaultItemAnimator
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.RecyclerView
 import android.content.pm.ResolveInfo
 import android.os.Build
-import android.support.v7.widget.GridLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import android.util.Log
 import kotlinx.android.synthetic.main.activity_home.*
 
@@ -15,7 +17,8 @@ import java.util.*
 
 
 class Home : AppCompatActivity(), AppInstallReceiver.IOnAppChanged {
-    var adapter = AppIconAdapter(getApps(), packageManager, this)
+    private lateinit var adapter: AppIconAdapter
+    val instance = AppInstallReceiver()
 
     override fun appUninstalled(packageChanged: String) {
         val index = adapter.appList.indexOfFirst { it.dataOrigin.activityInfo.packageName == packageChanged }
@@ -25,7 +28,7 @@ class Home : AppCompatActivity(), AppInstallReceiver.IOnAppChanged {
     }
 
     override fun appInstalled(packageChanged: String) {
-        adapter.appList = getApps()
+        adapter.appList = getApps(this)
         appGrid.adapter?.notifyDataSetChanged()
     }
 
@@ -33,8 +36,9 @@ class Home : AppCompatActivity(), AppInstallReceiver.IOnAppChanged {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        AppInstallReceiver.registerReceiver(withContext = this)
-        AppInstallReceiver.classesToAlert.add(this)
+        registerAppUpdateReceiver()
+
+        adapter = AppIconAdapter(getApps(this), packageManager, this)
 
         val layoutMan: RecyclerView.LayoutManager =
                 GridLayoutManager(applicationContext, 4)
@@ -43,7 +47,7 @@ class Home : AppCompatActivity(), AppInstallReceiver.IOnAppChanged {
         appGrid.adapter = adapter
     }
 
-    private fun getApps(): MutableList<AppInfo> {
+    private fun getApps(context: Context): MutableList<AppInfo> {
         //Fill info about appList
         val intentForGettingLaunchableApps = Intent(Intent.ACTION_MAIN, null)
         intentForGettingLaunchableApps.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -56,24 +60,33 @@ class Home : AppCompatActivity(), AppInstallReceiver.IOnAppChanged {
 
         // I think the last one is less efficient, so this one is used on newer platforms
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            appList.removeIf { it.activityInfo.packageName == packageName }
+            appList?.removeIf { it.activityInfo.packageName == packageName }
         } else {
-            appList.remove(appList.find { it.activityInfo.packageName == packageName })
+            appList?.remove(appList.find { it.activityInfo.packageName == packageName })
         }
 
         val appInfo: MutableList<AppInfo> = mutableListOf()
-        for (app in appList) {
-            appInfo.add(AppInfo(app, packageManager))
+        if (appList != null) {
+            for (app in appList) {
+                appInfo.add(AppInfo(app, packageManager))
+            }
         }
 
         return appInfo
     }
 
+    fun registerAppUpdateReceiver() {
+        val intentFilter = IntentFilter(Intent.ACTION_PACKAGE_ADDED)
+        intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED)
+
+        instance.onAppInstalledListener = this
+
+        this.registerReceiver(instance, intentFilter)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
 
-        AppInstallReceiver.classesToAlert.remove(this)
+        unregisterReceiver(instance)
     }
-
-
 }

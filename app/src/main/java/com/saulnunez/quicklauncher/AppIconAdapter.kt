@@ -9,9 +9,9 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import android.support.v7.widget.DefaultItemAnimator
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -77,11 +77,11 @@ class AppIconAdapter(var appList: MutableList<AppInfo>,
                     val shortcuts: List<ShortcutInfo> = launcherApps.getShortcuts(shortcutQuery,
                             android.os.Process.myUserHandle())
 
-                    val layoutMan: RecyclerView.LayoutManager = LinearLayoutManager(context)
+                    val layoutMan: RecyclerView.LayoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
                     val shortcutAdapter = AppShortcutAdapter(shortcuts, context, launcherApps)
 
                     popupWindow.contentView.recyclerView.layoutManager = layoutMan
-                    popupWindow.contentView.recyclerView.itemAnimator = DefaultItemAnimator()
+                    popupWindow.contentView.recyclerView.itemAnimator = androidx.recyclerview.widget.DefaultItemAnimator()
                     popupWindow.contentView.recyclerView.adapter = shortcutAdapter
 
                     popupWindow.isFocusable = true

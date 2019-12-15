@@ -5,7 +5,7 @@ import android.content.pm.LauncherApps
 import android.content.pm.ShortcutInfo
 import android.graphics.drawable.Drawable
 import android.os.Build
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +14,7 @@ import kotlinx.android.synthetic.main.shortcut_item_layout.view.*
 
 class AppShortcutAdapter(var shortcuts: List<ShortcutInfo>,
                          val context: Context, val launcherApps: LauncherApps) :
-        RecyclerView.Adapter<AppShortcutAdapter.AppShortcutViewHolder>() {
+        androidx.recyclerview.widget.RecyclerView.Adapter<AppShortcutAdapter.AppShortcutViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppShortcutViewHolder {
         return AppShortcutViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.shortcut_item_layout,
                 parent, false))
@@ -31,7 +31,7 @@ class AppShortcutAdapter(var shortcuts: List<ShortcutInfo>,
         }
     }
 
-    inner class AppShortcutViewHolder(val view: View) : RecyclerView.ViewHolder(view),
+    inner class AppShortcutViewHolder(val view: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view),
             View.OnClickListener {
         init {
             view.setOnClickListener(this)
