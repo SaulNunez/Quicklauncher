@@ -23,7 +23,8 @@
             android:clearTaskOnLaunch="true"
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
-            android:stateNotNeeded="true">
+            android:stateNotNeeded="true"
+            android:theme="@style/AppTheme.Wallpaper">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
