@@ -21,10 +21,10 @@ class Home : AppCompatActivity(), AppInstallReceiver.IOnAppChanged {
     val instance = AppInstallReceiver()
 
     override fun appUninstalled(packageChanged: String) {
-        val index = adapter.appList.indexOfFirst { it.dataOrigin.activityInfo.packageName == packageChanged }
+        val index = adapter.appList.find { it.dataOrigin.activityInfo.packageName == packageChanged }
         Log.d("QuickLauncher", "Index " + index + "deleted as app " + packageChanged + " was uninstalled")
-        adapter.appList.removeAt(index)
-        adapter.notifyItemRemoved(index)
+        adapter.appList.remove(index)
+        adapter.notifyDataSetChanged()
     }
 
     override fun appInstalled(packageChanged: String) {
@@ -58,12 +58,7 @@ class Home : AppCompatActivity(), AppInstallReceiver.IOnAppChanged {
         //Removing own activity from launcher
         val packageName = applicationContext.packageName
 
-        // I think the last one is less efficient, so this one is used on newer platforms
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            appList?.removeIf { it.activityInfo.packageName == packageName }
-        } else {
-            appList?.remove(appList.find { it.activityInfo.packageName == packageName })
-        }
+        appList?.remove(appList.find { it.activityInfo.packageName == packageName })
 
         val appInfo: MutableList<AppInfo> = mutableListOf()
         if (appList != null) {
