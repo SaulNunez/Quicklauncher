@@ -3,20 +3,20 @@ package com.saulnunez.quicklauncher
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.RecyclerView
 import android.content.pm.ResolveInfo
-import android.os.Build
-import androidx.recyclerview.widget.GridLayoutManager
+import android.os.Bundle
 import android.util.Log
-import kotlinx.android.synthetic.main.activity_home.*
-
-import java.util.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.saulnunez.quicklauncher.databinding.ActivityHomeBinding
+import java.util.Collections
 
 
 class Home : AppCompatActivity(), AppInstallReceiver.IOnAppChanged {
+    private lateinit var binding: ActivityHomeBinding
     private lateinit var adapter: AppIconAdapter
     val instance = AppInstallReceiver()
 
@@ -29,22 +29,24 @@ class Home : AppCompatActivity(), AppInstallReceiver.IOnAppChanged {
 
     override fun appInstalled(packageChanged: String) {
         adapter.appList = getApps(this)
-        appGrid.adapter?.notifyDataSetChanged()
+        binding.appGrid.adapter?.notifyDataSetChanged()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_home)
+        binding = ActivityHomeBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         registerAppUpdateReceiver()
 
         adapter = AppIconAdapter(getApps(this), packageManager, this)
 
         val layoutMan: RecyclerView.LayoutManager =
-                GridLayoutManager(applicationContext, 4)
-        appGrid.layoutManager = layoutMan
-        appGrid.itemAnimator = DefaultItemAnimator()
-        appGrid.adapter = adapter
+                LinearLayoutManager(applicationContext)
+        binding.appGrid.layoutManager = layoutMan
+        binding.appGrid.itemAnimator = DefaultItemAnimator()
+        binding.appGrid.adapter = adapter
     }
 
     private fun getApps(context: Context): MutableList<AppInfo> {

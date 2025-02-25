@@ -5,18 +5,18 @@ import android.content.pm.LauncherApps
 import android.content.pm.ShortcutInfo
 import android.graphics.drawable.Drawable
 import android.os.Build
-import androidx.recyclerview.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.android.synthetic.main.shortcut_item_layout.view.*
+import androidx.recyclerview.widget.RecyclerView
+import com.saulnunez.quicklauncher.databinding.ShortcutItemLayoutBinding
 
-class AppShortcutAdapter(var shortcuts: List<ShortcutInfo>,
-                         val context: Context, val launcherApps: LauncherApps) :
-        androidx.recyclerview.widget.RecyclerView.Adapter<AppShortcutAdapter.AppShortcutViewHolder>() {
+class AppShortcutAdapter(
+    private var shortcuts: List<ShortcutInfo>,
+    private val context: Context, val launcherApps: LauncherApps) :
+        RecyclerView.Adapter<AppShortcutAdapter.AppShortcutViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppShortcutViewHolder {
-        return AppShortcutViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.shortcut_item_layout,
+        return AppShortcutViewHolder(ShortcutItemLayoutBinding.inflate(LayoutInflater.from(parent.context),
                 parent, false))
     }
 
@@ -31,17 +31,16 @@ class AppShortcutAdapter(var shortcuts: List<ShortcutInfo>,
         }
     }
 
-    inner class AppShortcutViewHolder(val view: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(view),
+    inner class AppShortcutViewHolder(private val view: ShortcutItemLayoutBinding) : RecyclerView.ViewHolder(view.root),
             View.OnClickListener {
         init {
-            view.setOnClickListener(this)
+            view.root.setOnClickListener(this)
         }
 
-        var pointingToShortcut: ShortcutInfo? = null
+        private var pointingToShortcut: ShortcutInfo? = null
         override fun onClick(v: View?) {
-            Log.d("Quick launcher", "On shortcut click")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-                launcherApps.startShortcut(pointingToShortcut, null, null)
+                pointingToShortcut?.let { launcherApps.startShortcut(it, null, null) }
             }
         }
 

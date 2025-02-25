@@ -9,25 +9,24 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.PopupWindow
 import android.view.ViewGroup.LayoutParams
-import kotlinx.android.synthetic.main.app_item_layout.view.*
-import kotlinx.android.synthetic.main.shortcut_popup.view.*
+import android.widget.PopupWindow
+import androidx.recyclerview.widget.RecyclerView
+import com.saulnunez.quicklauncher.databinding.AppItemLayoutBinding
+import com.saulnunez.quicklauncher.databinding.ShortcutPopupBinding
+
 
 class AppIconAdapter(var appList: MutableList<AppInfo>,
                      private val packageManager: PackageManager,
                      private val context: Context) : RecyclerView.Adapter<AppIconAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.app_item_layout,
-                parent, false), packageManager, context)
+        val itemBinding =  AppItemLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(itemBinding, packageManager, context)
     }
 
     override fun getItemCount(): Int = appList.size
@@ -38,16 +37,16 @@ class AppIconAdapter(var appList: MutableList<AppInfo>,
                 appList[position].icon)
     }
 
-    class ViewHolder(itemView: View, val packageManager: PackageManager,
-                     val context: Context) : RecyclerView.ViewHolder(itemView),
+    class ViewHolder(private val itemBinding: AppItemLayoutBinding, private val packageManager: PackageManager,
+                     private val context: Context) : RecyclerView.ViewHolder(itemBinding.root),
             View.OnClickListener, View.OnLongClickListener {
         override fun onLongClick(v: View?): Boolean {
+            val inflatedView = ShortcutPopupBinding.inflate(LayoutInflater.from(context), null, false)
             //Setting popup window
-            val popupWindow = PopupWindow(LayoutInflater.from(context).inflate(R.layout.shortcut_popup,
-                    null, false), LayoutParams.WRAP_CONTENT,
+            val popupWindow = PopupWindow(inflatedView.root, LayoutParams.WRAP_CONTENT,
                     LayoutParams.WRAP_CONTENT)
 
-            popupWindow.contentView.buttonDelete.setOnClickListener {
+            inflatedView.buttonDelete.setOnClickListener {
                 val uninstallIntent = Intent(Intent.ACTION_DELETE,
                         Uri.fromParts("package", packageName, null))
                 context.startActivity(uninstallIntent)
@@ -55,7 +54,7 @@ class AppIconAdapter(var appList: MutableList<AppInfo>,
                 popupWindow.dismiss()
             }
 
-            popupWindow.contentView.buttonDetails.setOnClickListener {
+            inflatedView.buttonDetails.setOnClickListener {
                 val appDetailsPageIntent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                         Uri.fromParts("package", packageName, null))
                 appDetailsPageIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -74,15 +73,16 @@ class AppIconAdapter(var appList: MutableList<AppInfo>,
 
                 val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
                 try {
-                    val shortcuts: List<ShortcutInfo> = launcherApps.getShortcuts(shortcutQuery,
+                    val shortcuts: MutableList<ShortcutInfo>? = launcherApps.getShortcuts(shortcutQuery,
                             android.os.Process.myUserHandle())
 
                     val layoutMan: RecyclerView.LayoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
-                    val shortcutAdapter = AppShortcutAdapter(shortcuts, context, launcherApps)
+                    val shortcutAdapter =
+                        shortcuts?.let { AppShortcutAdapter(it, context, launcherApps) }
 
-                    popupWindow.contentView.recyclerView.layoutManager = layoutMan
-                    popupWindow.contentView.recyclerView.itemAnimator = androidx.recyclerview.widget.DefaultItemAnimator()
-                    popupWindow.contentView.recyclerView.adapter = shortcutAdapter
+                    inflatedView.recyclerView.layoutManager = layoutMan
+                    inflatedView.recyclerView.itemAnimator = androidx.recyclerview.widget.DefaultItemAnimator()
+                    inflatedView.recyclerView.adapter = shortcutAdapter
 
                     popupWindow.isFocusable = true
                     val location = IntArray(2)
@@ -105,18 +105,13 @@ class AppIconAdapter(var appList: MutableList<AppInfo>,
         }
 
         override fun onClick(v: View?) {
-            Log.d("Debug QuickLauncher", "OnClick")
-            val intentToLaunchApp = packageManager.getLaunchIntentForPackage(packageName)
-            if (intentToLaunchApp != null) {
-                Log.d("Debug QuickLauncher", "Starting")
-                context.startActivity(intentToLaunchApp)
-            }
+            val intentToLaunchApp = packageName?.let { context.startActivity(packageManager.getLaunchIntentForPackage(it)) }
         }
 
         fun setPackageInfo(label: String, packageName: String, icon: Drawable) {
             this.packageName = packageName
-            itemView.appName.text = label
-            itemView.appIcon.setImageDrawable(icon)
+            itemBinding.appName.text = label
+            itemBinding.appIcon.setImageDrawable(icon)
         }
     }
 
