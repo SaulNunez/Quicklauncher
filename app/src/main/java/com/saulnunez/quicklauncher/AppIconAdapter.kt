@@ -24,6 +24,7 @@ import com.saulnunez.quicklauncher.databinding.ShortcutPopupBinding
 class AppIconAdapter(var appList: MutableList<AppInfo>,
                      private val packageManager: PackageManager,
                      private val context: Context) : RecyclerView.Adapter<AppIconAdapter.ViewHolder>() {
+    val header: Int = 1
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemBinding =  AppItemLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(itemBinding, packageManager, context)

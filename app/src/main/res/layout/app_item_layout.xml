@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:background="?selectableItemBackgroundBorderless"
     android:clickable="true"
-    android:focusable="auto"
+    android:focusable="true"
     android:gravity="start"
     android:orientation="horizontal">
 
@@ -25,10 +25,10 @@
         android:shadowColor="#222222"
         android:shadowDx="0"
         android:shadowDy="0"
-        android:shadowRadius="24"
+        android:shadowRadius="32"
         android:text="TextView"
         android:textAlignment="textStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
         android:textColor="@android:color/white" />
 
 </LinearLayout>

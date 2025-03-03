@@ -8,17 +8,16 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.saulnunez.quicklauncher.databinding.ActivityHomeBinding
 import java.util.Collections
 
 
-class Home : AppCompatActivity(), AppInstallReceiver.IOnAppChanged {
+class Home : AppCompatActivity(), AppChangeReceiver.IOnAppChanged {
     private lateinit var binding: ActivityHomeBinding
     private lateinit var adapter: AppIconAdapter
-    val instance = AppInstallReceiver()
+    val instance = AppChangeReceiver()
 
     override fun appUninstalled(packageChanged: String) {
         val index = adapter.appList.find { it.dataOrigin.activityInfo.packageName == packageChanged }
@@ -60,21 +59,22 @@ class Home : AppCompatActivity(), AppInstallReceiver.IOnAppChanged {
         //Removing own activity from launcher
         val packageName = applicationContext.packageName
 
-        appList?.remove(appList.find { it.activityInfo.packageName == packageName })
+        appList.remove(appList.find { it.activityInfo.packageName == packageName })
 
         val appInfo: MutableList<AppInfo> = mutableListOf()
-        if (appList != null) {
-            for (app in appList) {
-                appInfo.add(AppInfo(app, packageManager))
-            }
+        for (app in appList) {
+            appInfo.add(AppInfo(app, packageManager))
         }
 
         return appInfo
     }
 
-    fun registerAppUpdateReceiver() {
-        val intentFilter = IntentFilter(Intent.ACTION_PACKAGE_ADDED)
-        intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED)
+    private fun registerAppUpdateReceiver() {
+        val intentFilter = IntentFilter().apply {
+            addAction(Intent.ACTION_PACKAGE_ADDED)
+            addAction(Intent.ACTION_PACKAGE_REMOVED)
+            addDataScheme("package")
+        }
 
         instance.onAppInstalledListener = this
 
