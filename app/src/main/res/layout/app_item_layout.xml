@@ -7,7 +7,7 @@
     android:background="?selectableItemBackgroundBorderless"
     android:clickable="true"
     android:focusable="true"
-    android:gravity="start"
+    android:gravity="center"
     android:orientation="horizontal">
 
     <ImageView
@@ -22,13 +22,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
+        android:ellipsize="end"
         android:shadowColor="#222222"
         android:shadowDx="0"
         android:shadowDy="0"
         android:shadowRadius="32"
+        android:singleLine="true"
         android:text="TextView"
         android:textAlignment="textStart"
-        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
         android:textColor="@android:color/white" />
 
 </LinearLayout>
