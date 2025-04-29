@@ -14,8 +14,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/delete"
+        android:textColor="?attr/colorOnSurface"
         app:iconGravity="start"
         app:iconPadding="8dp"
+        app:iconTint="?attr/colorOnSurface"
         app:icon="@drawable/ic_outline_delete_24px" />
 
     <com.google.android.material.button.MaterialButton
@@ -24,8 +26,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/details"
+        android:textColor="?attr/colorOnSurface"
         app:iconGravity="start"
         app:iconPadding="8dp"
+        app:iconTint="?attr/colorOnSurface"
         app:icon="@drawable/ic_outline_info_24px" />
 
     <androidx.recyclerview.widget.RecyclerView
