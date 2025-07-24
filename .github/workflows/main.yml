@@ -23,6 +23,9 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+
     - name: Run Unit Tests
       run: ./gradlew test --stacktrace
 
@@ -41,6 +44,9 @@ jobs:
 
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
+
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
 
     - name: Build Debug APK
       run: ./gradlew :app:assembleDebug
