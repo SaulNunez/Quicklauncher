@@ -1,0 +1,16 @@
+A clean, lightweight launcher designed for simplicity and speed.
+
+Quick Launcher offers a minimal home screen experience with a vertical layout for organizing your apps. Built with performance in mind, it's optimized to run smoothly even on <b>older or low-spec devices</b>, ensuring a fast and responsive experience without unnecessary bloat.
+
+<b>Key Features:</b>
+<ul>
+    <li>Grid-based app layout for easy access and organization</li>
+
+    <li>Ultra-lightweight - uses minimal memory and storage</li>
+
+    <li>No ads, no distractions - just your apps, clean and simple</li>
+
+    <li>Perfect for older phones, secondary devices, or users who prefer a minimalist setup</li>
+</ul>
+
+Whether you're looking to revive an old phone or just want a no-nonsense launcher that gets out of your way, Quick Launcher delivers.
